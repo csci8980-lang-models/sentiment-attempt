@@ -45,7 +45,7 @@ class SentimentDataset:
         return line
 
     @staticmethod
-    def _read_imdb_data(filename):
+    def _read_imdb_data(filename, n):
         print("Getting Data")
         data = []
         positive = 0
@@ -53,10 +53,10 @@ class SentimentDataset:
         i = 0
         for line in open(filename, 'r', encoding="utf-8"):
             tmp = SentimentDataset._parse_imdb_line(line)
-            if i < 1250:
+            if i < n:
                 positive += 1
                 data.append(tmp)
-            if i > 23749:
+            if i > 24999 - n:
                 negative += 1
                 data.append(tmp)
             i += 1
@@ -72,9 +72,9 @@ class SentimentDataset:
 
         return dataloader
 
-    def prepare_dataloader(self, filename, sampler=None):
-        data = self._read_imdb_data(filename)
-        y = np.append(np.zeros(1250), np.ones(1250))
+    def prepare_dataloader(self, filename, n, sampler=None):
+        data = self._read_imdb_data(filename, n)
+        y = np.append(np.zeros(n), np.ones(n))
         sentences_with_labels = zip(data, y.tolist())
 
         return self.prepare_dataloader_from_examples(sentences_with_labels, sampler=sampler)

@@ -38,9 +38,9 @@ class SentimentBERT:
         preds = self._predict_tags_batched(dataloader)
         return preds
 
-    def evaluate(self, dataloader):
+    def evaluate(self, dataloader, n):
         y_pred = self._predict_tags_batched(dataloader)
-        y_true = np.append(np.zeros(125), np.ones(125))
+        y_true = np.append(np.zeros(n), np.ones(n))
 
         return classification_report(y_true, y_pred)
 
@@ -83,9 +83,9 @@ class SentimentBERT:
 
         # Train!
         print("***** Running training *****")
-        print("Training on %d examples", len(dataloader))
-        print("Num Epochs = %d", epochs)
-        print("Total optimization steps = %d", t_total)
+        print(f"Training on {len(dataloader)} examples")
+        print(f"Num Epochs = {epochs}")
+        print(f"Total optimization steps = {t_total}")
 
         global_step = 0
         tr_loss, logging_loss = 0.0, 0.0
@@ -108,9 +108,9 @@ class SentimentBERT:
                 tr_loss += loss.item()
                 if (step + 1) % GRADIENT_ACCUMULATION_STEPS == 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), MAX_GRAD_NORM)
-
-                    scheduler.step()  # Update learning rate schedule
                     optimizer.step()
+                    scheduler.step()  # Update learning rate schedule
+
                     model.zero_grad()
                     global_step += 1
 
