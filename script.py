@@ -27,6 +27,7 @@ args = parser.parse_args()
 
 def train(train_file, epochs=20, output_dir="weights/", n=25000):
     n = int(n/2)
+    print(epochs)
     config = BertConfig.from_pretrained(BERT_MODEL, num_labels=NUM_LABELS)
     tokenizer = BertTokenizer.from_pretrained(BERT_MODEL, do_lower_case=True)
     model = BertForSequenceClassification.from_pretrained(BERT_MODEL, config=config)
@@ -77,5 +78,3 @@ if __name__ == '__main__':
 
     if len(args.predict) > 0:
         print(predict(args.predict, model_dir=args.path))
-
-    #print(predict("It was truly amazing experience.", model_dir=args.path))
