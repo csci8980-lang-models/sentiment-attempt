@@ -1,6 +1,6 @@
 import os
 import argparse
-
+import random
 from torch.utils.data import RandomSampler
 from transformers import BertConfig, BertForSequenceClassification, BertTokenizer
 
@@ -9,6 +9,7 @@ from model import SentimentBERT
 
 BERT_MODEL = 'bert-base-uncased'
 NUM_LABELS = 2  # negative and positive reviews
+PORTION = .9
 
 parser = argparse.ArgumentParser(prog='script')
 parser.add_argument('--train', action="store_true", help="Train new weights")
@@ -35,14 +36,37 @@ def train(train_file, epochs, output_dir, n):
     model = BertForSequenceClassification.from_pretrained(BERT_MODEL, config=config)
 
     if args.freeze:
-        for param in model.bert.bert.parameters():
-            param.requires_grad = False
-
-    if args.paramF:
-        print("param stuff")
+        for layer in model.bert.encoder.layer:
+            for param in layer.parameters():
+                param.requires_grad = False
 
     if args.layerF:
-        print("layer stuff")
+        layers = [model.fc]
+        for layer in model.bert.encoder.layer:
+            layers.append(layer)
+
+        count = int(len(layers) * PORTION)
+        layers = random.sample(layers, count)
+
+        for layer in layers:
+            for param in layer.parameters():
+                param.requires_grad = False
+
+    if args.paramF:
+        parameters = []
+        for layer in model.bert.encoder.layer:
+            for param in layer.parameters():
+                parameters.append(param)
+
+        for param in model.parameters():
+            parameters.append(param)
+
+        count = int(len(parameters) * PORTION)
+        subset = random.sample(parameters, count)
+
+        for param in subset:
+            param.requires_grad = False
+
 
     dt = SentimentDataset(tokenizer)
     dataloader = dt.prepare_dataloader(train_file, n, sampler=RandomSampler)
