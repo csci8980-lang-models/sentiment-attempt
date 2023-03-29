@@ -65,11 +65,6 @@ class SentimentBERT:
 
 		t_total = len(dataloader) // GRADIENT_ACCUMULATION_STEPS * epochs
 
-		# Prepare optimizer and schedule (linear warmup and decay)
-		optimizer_grouped_parameters = [
-			{"params": model.bert.parameters(), "lr": LEARNING_RATE_MODEL},
-			{"params": model.classifier.parameters(), "lr": LEARNING_RATE_CLASSIFIER}
-		]
 
 		optimizer = DPAdam(
 			params=model.parameters(),
@@ -112,7 +107,6 @@ class SentimentBERT:
 					tr_loss += loss.item()
 					count += 1
 
-				print(count)
 
 				if (step + 1) % GRADIENT_ACCUMULATION_STEPS == 0:
 					torch.nn.utils.clip_grad_norm_(model.parameters(), MAX_GRAD_NORM)

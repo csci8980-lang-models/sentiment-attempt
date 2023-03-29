@@ -12,6 +12,8 @@ NUM_LABELS = 2  # negative and positive reviews
 
 parser = argparse.ArgumentParser(prog='script')
 parser.add_argument('--train', action="store_true", help="Train new weights")
+parser.add_argument('--paramF', action="store_true", help="Freeze subset of layers")
+parser.add_argument('--layerF', action="store_true", help="Freeze subset of parameters")
 parser.add_argument('-n', type=int, help="Dataset size")
 parser.add_argument('--epoch', type=int, help="Num Epochs")
 parser.add_argument('--freeze', action="store_true", help="Freeze bert")
@@ -25,7 +27,7 @@ parser.add_argument('--test-file', default='data/imdb_test.txt',
 args = parser.parse_args()
 
 
-def train(train_file, epochs=20, output_dir="weights/", n=25000):
+def train(train_file, epochs, output_dir, n):
     n = int(n/2)
     print(epochs)
     config = BertConfig.from_pretrained(BERT_MODEL, num_labels=NUM_LABELS)
@@ -36,6 +38,12 @@ def train(train_file, epochs=20, output_dir="weights/", n=25000):
         for param in model.bert.parameters():
             param.requires_grad = False
 
+    if args.paramF:
+        print("param stuff")
+
+    if args.layerF:
+        print("layer stuff")
+
     dt = SentimentDataset(tokenizer)
     dataloader = dt.prepare_dataloader(train_file, n, sampler=RandomSampler)
     predictor = SentimentBERT()
@@ -45,7 +53,7 @@ def train(train_file, epochs=20, output_dir="weights/", n=25000):
     tokenizer.save_pretrained(output_dir)
 
 
-def evaluate(test_file, model_dir="weights/", n=25000):
+def evaluate(test_file, model_dir, n):
     n = int(n / 2)
     predictor = SentimentBERT()
     predictor.load(model_dir=model_dir)
@@ -56,7 +64,7 @@ def evaluate(test_file, model_dir="weights/", n=25000):
     print(score)
 
 
-def predict(text, model_dir="weights/"):
+def predict(text, model_dir):
     predictor = SentimentBERT()
     predictor.load(model_dir=model_dir)
 
@@ -69,12 +77,15 @@ def predict(text, model_dir="weights/"):
 
 if __name__ == '__main__':
 
+    epochs = args.epoch or 20
+    n = args.n or 25000
+    path = args.path or "weights/"
     if args.train:
         os.makedirs(args.path, exist_ok=True)
-        train(args.train_file, epochs=args.epoch, output_dir=args.path, n=args.n)
+        train(args.train_file, epochs, path, n)
 
     if args.evaluate:
-        evaluate(args.test_file, model_dir=args.path, n=args.n)
+        evaluate(args.test_file, path, n)
 
     if len(args.predict) > 0:
-        print(predict(args.predict, model_dir=args.path))
+        print(predict(args.predict, args.path))
