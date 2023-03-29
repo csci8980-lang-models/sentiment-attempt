@@ -35,7 +35,7 @@ def train(train_file, epochs, output_dir, n):
     model = BertForSequenceClassification.from_pretrained(BERT_MODEL, config=config)
 
     if args.freeze:
-        for param in model.bert.parameters():
+        for param in model.bert.bert.parameters():
             param.requires_grad = False
 
     if args.paramF:
