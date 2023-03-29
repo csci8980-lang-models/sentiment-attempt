@@ -30,7 +30,6 @@ args = parser.parse_args()
 
 def train(train_file, epochs, output_dir, n):
     n = int(n/2)
-    print(epochs)
     config = BertConfig.from_pretrained(BERT_MODEL, num_labels=NUM_LABELS)
     tokenizer = BertTokenizer.from_pretrained(BERT_MODEL, do_lower_case=True)
     model = BertForSequenceClassification.from_pretrained(BERT_MODEL, config=config)
@@ -56,10 +55,12 @@ def train(train_file, epochs, output_dir, n):
         parameters = []
         for layer in model.bert.encoder.layer:
             for param in layer.parameters():
-                parameters.append(param)
+                if param.requires_grad:
+                    parameters.append(param)
 
         for param in model.parameters():
-            parameters.append(param)
+            if param.requires_grad:
+                parameters.append(param)
 
         count = int(len(parameters) * PORTION)
         subset = random.sample(parameters, count)
