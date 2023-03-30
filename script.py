@@ -73,7 +73,7 @@ def train(train_file, epochs, output_dir, n):
     dt = SentimentDataset(tokenizer)
     dataloader = dt.prepare_dataloader(train_file, n, sampler=RandomSampler)
     predictor = SentimentBERT()
-    predictor.train(tokenizer, dataloader, model, epochs)
+    predictor.train(tokenizer, dataloader, model, epochs, output_dir)
 
     model.save_pretrained(output_dir)
     tokenizer.save_pretrained(output_dir)

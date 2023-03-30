@@ -9,8 +9,7 @@ from batch_samplers import get_data_loaders
 from tqdm import tqdm, trange
 from transformers import AdamW, get_linear_schedule_with_warmup
 from transformers import BertForSequenceClassification, BertTokenizer
-
-from pyvacy import optim as optim_pyvacy
+import datetime
 
 PAD_TOKEN_LABEL_ID = CrossEntropyLoss().ignore_index
 
@@ -57,7 +56,7 @@ class SentimentBERT:
 
 		return preds
 
-	def train(self, tokenizer, dataloader, model, epochs):
+	def train(self, tokenizer, dataloader, model, epochs, output_dir):
 		assert self.model is None  # make sure we are not training after load() command
 		model.to(self.device)
 		self.model = model
@@ -90,8 +89,11 @@ class SentimentBERT:
 		model.zero_grad()
 		train_iterator = trange(epochs, desc="Epoch")
 		self._set_seed()
+		epoch = 0
 		for _ in train_iterator:
+			epoch += 1
 			epoch_iterator = tqdm(dataloader, desc="Iteration")
+
 			for step, batch in enumerate(epoch_iterator):
 				model.train()
 				count = 0
@@ -115,8 +117,13 @@ class SentimentBERT:
 
 					model.zero_grad()
 					global_step += 1
-
+					
+			save_directory = output_dir + datetime.datetime.now().strftime("%m-%d-%Y") + "/" + str(epoch) + "/"
+			os.makedirs(save_directory, exist_ok=True)
+			model.save_pretrained(save_directory)
+			tokenizer.save_pretrained(save_directory)
 		self.model = model
+
 
 		return global_step, tr_loss / global_step
 
