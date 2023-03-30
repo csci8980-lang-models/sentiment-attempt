@@ -117,7 +117,7 @@ class SentimentBERT:
 
 					model.zero_grad()
 					global_step += 1
-					
+
 			save_directory = output_dir + datetime.datetime.now().strftime("%m-%d-%Y") + "/" + str(epoch) + "/"
 			os.makedirs(save_directory, exist_ok=True)
 			model.save_pretrained(save_directory)
