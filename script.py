@@ -3,6 +3,7 @@ import argparse
 import random
 from torch.utils.data import RandomSampler
 from transformers import BertConfig, BertForSequenceClassification, BertTokenizer
+import datetime
 
 from dataset import SentimentDataset
 from model import SentimentBERT
@@ -86,6 +87,10 @@ def evaluate(test_file, model_dir, n):
     dt = SentimentDataset(predictor.tokenizer)
     dataloader = dt.prepare_dataloader(test_file, n)
     score = predictor.evaluate(dataloader, n)
+    print("SCORE!")
+    filename = "results/" + datetime.datetime.now().strftime("%m-%d-%Y %H %M") + ".txt"
+    with open(filename, 'w+') as f:
+        f.write(score)
     print(score)
 
 
