@@ -4,6 +4,7 @@ import random
 from torch.utils.data import RandomSampler
 from transformers import BertConfig, BertForSequenceClassification, BertTokenizer
 import datetime
+import torch
 
 from dataset import SentimentDataset
 from model import SentimentBERT
@@ -31,6 +32,7 @@ args = parser.parse_args()
 
 def train(train_file, epochs, output_dir, n):
     n = int(n/2)
+    print("Torch CUDA is available:", torch.cuda.is_available())
     config = BertConfig.from_pretrained(BERT_MODEL, num_labels=NUM_LABELS)
     tokenizer = BertTokenizer.from_pretrained(BERT_MODEL, do_lower_case=True)
     model = BertForSequenceClassification.from_pretrained(BERT_MODEL, config=config)
