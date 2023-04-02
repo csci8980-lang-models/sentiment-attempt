@@ -38,11 +38,13 @@ def train(train_file, epochs, output_dir, n):
     model = BertForSequenceClassification.from_pretrained(BERT_MODEL, config=config)
 
     if args.freeze:
+        output_dir = output_dir + "freeze/"
         for layer in model.bert.encoder.layer:
             for param in layer.parameters():
                 param.requires_grad = False
 
     if args.layerF:
+        output_dir = output_dir + "layerF/"
         layers = [model.fc]
         for layer in model.bert.encoder.layer:
             layers.append(layer)
@@ -55,6 +57,7 @@ def train(train_file, epochs, output_dir, n):
                 param.requires_grad = False
 
     if args.paramF:
+        output_dir = output_dir + "paramF/"
         parameters = []
         for layer in model.bert.encoder.layer:
             for param in layer.parameters():
@@ -76,9 +79,9 @@ def train(train_file, epochs, output_dir, n):
     dataloader = dt.prepare_dataloader(train_file, n, sampler=RandomSampler)
     predictor = SentimentBERT()
     predictor.train(tokenizer, dataloader, model, epochs, output_dir)
-
-    model.save_pretrained(output_dir)
-    tokenizer.save_pretrained(output_dir)
+    save_dir = output_dir + datetime.datetime.now().strftime("%m-%d-%Y") + "/final/"
+    model.save_pretrained(save_dir)
+    tokenizer.save_pretrained(save_dir)
 
 
 def evaluate(test_file, model_dir, n):
@@ -90,7 +93,7 @@ def evaluate(test_file, model_dir, n):
     dataloader = dt.prepare_dataloader(test_file, n)
     score = predictor.evaluate(dataloader, n)
     print("SCORE!")
-    filename = "results/" + datetime.datetime.now().strftime("%m-%d-%Y %H %M") + ".txt"
+    filename = model_dir + datetime.datetime.now().strftime("%m-%d-%Y %H %M") + ".txt"
     with open(filename, 'w+') as f:
         f.write(score)
     print(score)

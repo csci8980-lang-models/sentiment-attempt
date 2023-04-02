@@ -73,8 +73,7 @@ class SentimentBERT:
 			microbatch_size=1,
 			lr=LEARNING_RATE_MODEL,
 		)
-		# optimizer.microbatch_step()
-		# optimizer = AdamW(optimizer_grouped_parameters)
+
 		scheduler = get_linear_schedule_with_warmup(
 			optimizer, num_warmup_steps=WARMUP_STEPS, num_training_steps=t_total)
 
