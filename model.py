@@ -13,8 +13,7 @@ import datetime
 
 PAD_TOKEN_LABEL_ID = CrossEntropyLoss().ignore_index
 
-LEARNING_RATE_MODEL = 1e-5
-LEARNING_RATE_CLASSIFIER = 1e-3
+LEARNING_RATE_MODEL = 1e-6
 WARMUP_STEPS = 0
 GRADIENT_ACCUMULATION_STEPS = 1
 MAX_GRAD_NORM = 1.0
@@ -67,7 +66,7 @@ class SentimentBERT:
 		optimizer = DPAdam(
 			params=model.parameters(),
 			l2_norm_clip=1.0,
-			noise_multiplier=0.1,
+			noise_multiplier=0,
 			minibatch_size=16,
 			microbatch_size=1,
 			lr=LEARNING_RATE_MODEL,
